@@ -17,7 +17,7 @@ export default async function getAccessToken(): Promise<string> {
         "Content-Type": "application/x-www-form-urlencoded",
         "Authorization": `Basic ${authString}`,
       },
-      body: "grant-type=client-credentials",
+      body: `grant_type=client_credentials&client_id=${client_id}&client_secret=${client_secret}`,
     }
   )
 
