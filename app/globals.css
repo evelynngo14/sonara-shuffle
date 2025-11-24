@@ -36,6 +36,10 @@ body {
     background-color: lightslategray;
 }
 
+.buttons:active {
+    background-color: lightslategray;
+}
+
 .list {
     display: flex;
     flex-direction: row;

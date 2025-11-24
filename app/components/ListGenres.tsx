@@ -1,20 +1,29 @@
 import React from "react";
 
-interface ListGenreProps {
+export interface ListGenreProps {
   genres: string[];
-  onSelect: (genre: string) => void;
+  onClick: (genre: string) => void;
 }
 
-export const ListGenres: React.FC<ListGenreProps> = ({ genres, onSelect }) => {
+export const Genres = ['any', 'pop', 'rock', 'hip-hop', 'jazz', 'country', 'electronic'];
+
+export const ListGenres: React.FC<ListGenreProps> = ({ genres, onClick }) => {
+  const [genre, setGenre] = React.useState<string>('any');
+
+  const handleGenreChange = (label: string) => {
+    setGenre(label);
+    onClick(label);
+  }
+
   return (
-    <div>
-      <ul className="list">
-        {genres.map((genre, index) => (
-          <li className="buttons" key={index} onClick={() => onSelect(genre)}>
-            {genre}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <ul>
+      {genres.map((genre) => (
+        <li key={genre} onClick={() => handleGenreChange(genre)}>
+          {genre}
+        </li>
+      ))}
+    </ul>
   )
 }
+
+export default ListGenres;
