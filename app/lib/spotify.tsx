@@ -1,36 +1,25 @@
-export interface Track {
-  id: string;
-  title: string;
-  artists: string[];
-  decade: [number, number];
-  genre: string;
-  external_url: {
-    spotify: string;
-  };
-}
 
-const SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token";
-const SPOTIFY_API_URL = "https://api.spotify.com/v1";
+export default async function getAccessToken(): Promise<string> {
+  const client_id = "a55cd94af1594c81b470f63bfe3dfed5";
+  const client_secret = "839b0a15756b4dceb8b15bc5f02d3115";
 
-async function getAccessToken(): Promise<string> {
-  const clientId = process.env.SPOTIFY_CLIENT_ID;
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+  const authString = btoa(`${client_id}:${client_secret}`);
 
-  if (!clientId || !clientSecret) {
+  if (!client_id || !client_secret) {
     throw new Error("Missing Spotify client credentials");
   }
 
-
-  const authHeader = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
-
-  const res = await fetch(SPOTIFY_TOKEN_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${authHeader}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({ grant_type: "client_credentials" }),
-  });
+  const res = await fetch(
+    "https://accounts.spotify.com/api/token",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Basic ${authString}`,
+      },
+      body: "grant-type=client-credentials",
+    }
+  )
 
   if (!res.ok) {
     const errorText = await res.text();
@@ -39,37 +28,4 @@ async function getAccessToken(): Promise<string> {
 
   const data = await res.json();
   return data.access_token as string;
-}
-
-export default async function getRandomSong({
-  genre,
-  decade,
-}: { genre: string; decade: [number, number] }): Promise<Track> {
-  const token = await getAccessToken();
-  const [minYear, maxYear] = decade;
-
-  const res = await fetch(
-    `${SPOTIFY_API_URL}/search?q=year:${minYear}-${maxYear}%20genre:${genre}&type=track&limit=50`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`, // <-- Correct usage here
-      },
-    }
-  );
-
-  const data = await res.json();
-  if (!data.tracks?.items || data.tracks.items.length === 0) {
-    throw new Error("No tracks found");
-  }
-
-  const raw = data.tracks.items[Math.floor(Math.random() * data.tracks.items.length)];
-
-  return {
-    id: raw.id,
-    title: raw.name,
-    artists: raw.artists.map((a: { name: string }) => a.name),
-    decade,
-    genre,
-    external_url: { spotify: raw.external_urls.spotify },
-  };
 }
