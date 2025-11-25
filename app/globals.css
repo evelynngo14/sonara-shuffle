@@ -1,8 +1,23 @@
 @import "tailwindcss";
 
+html {
+    font: clamp(1rem, 1rem + 0.5vw, 2rem) / 1.4 system-ui,
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 :root {
-    --background: #ffffff;
-    --foreground: #171717;
+    --primary-color: #d61782;
+    --background: #272727;
+    --foreground: white;
+    padding: 40px;
+    font-size: 16px;
 }
 
 @theme inline {
@@ -23,25 +38,57 @@ body {
     background: var(--background);
     color: var(--foreground);
     font-family: Arial, Helvetica, sans-serif;
+    min-block-size: 100svb;
+    min-inline-size: 300px;
 }
 
-.buttons {
-    background-color: skyblue;
+h1 {
+    font-size: 2.5em;
+}
+
+h2 {
+    padding-top: 30px;
+}
+
+button {
+    background-color: var(--primary-color);
     border-radius: 4px;
     gap: 10px;
-    padding: 5px;
+    padding: 7px;
+    margin: 4px;
+    text-wrap: nowrap;
+    min-width: 4rem;
 }
 
-.buttons:hover {
-    background-color: lightslategray;
+button:hover {
+    background-color: black;
+    cursor: pointer;
 }
 
-.buttons:active {
-    background-color: lightslategray;
+.selected.button {
+    background-color: black;
 }
 
 .list {
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.selection {}
+
+.track-info {
+    background-color: var(--primary-color);
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    text-align: center;
+}
+
+.track-name {}
+
+.fetch-song {
+    margin-top: 20px;
+    background-color: var(--primary-color);
 }

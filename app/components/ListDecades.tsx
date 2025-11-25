@@ -20,17 +20,15 @@ interface ListDecadesProps {
   onClick: (decade: string, range: [number, number]) => void;
 }
 
-export const ListDecades: React.FC<ListDecadesProps> = ({ decades, onClick }: ListDecadesProps) => {
-  const [selectedDecade, setSelectedDecade] = React.useState<DecadeRange>({
-    'any': [1960, 2025]
-  })
+export const ListDecades: React.FC<ListDecadesProps> = ({ decades, onClick }) => {
+  const [selectedDecade, setSelectedDecade] = React.useState<string>('any');
 
-  const handleDecadeSelect = (label: string, range: [number, number]) => {
+  const handleDecadeSelect = (label: string) => {
     // Update local state so the UI updates (highlights button)
-    setSelectedDecade({ [label]: range });
+    setSelectedDecade(label);
 
     // Send data back to parent component to trigger API logic
-    onClick(label, range);
+    onClick(label, decades[label]);
   }
 
 
@@ -38,9 +36,13 @@ export const ListDecades: React.FC<ListDecadesProps> = ({ decades, onClick }: Li
     <ul className="list">
       {Object.entries(decades).map(([label, range]) => {
         return (
-          <li className="buttons" key={label} onClick={() => handleDecadeSelect(label, range)}>
+          <button
+            key={label}
+            onClick={() => handleDecadeSelect(label)}
+            className={selectedDecade === label ? 'selected button' : 'button'}
+          >
             {label}
-          </li>
+          </button>
         )
       })}
     </ul>
