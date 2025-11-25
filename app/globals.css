@@ -1,9 +1,12 @@
+@import url("https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@100..1000&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Stack+Sans+Headline:wght@200..700&display=swap");
 @import "tailwindcss";
 
 /* --- GLOBAL STYLES --- */
 html {
     font: clamp(1rem, 1rem + 0.5vw, 2rem) / 1.4 system-ui;
     -webkit-font-smoothing: antialiased;
+    font-family: "Google Sans Flex", system-ui, sans-serif;
 }
 
 *,
@@ -43,6 +46,11 @@ body {
     font-size: 2.5em;
     text-align: center;
     margin-bottom: 1rem;
+    font-family: "Stack Sans Headline", sans-serif;
+}
+
+.error {
+    justify-content: center;
 }
 
 /* --- TYPOGRAPHY AND HEADINGS --- */
@@ -52,6 +60,9 @@ h1 {
 
 h2 {
     padding-top: 1.5em;
+    padding-bottom: 0.8em;
+    padding-left: 0.5em;
+    font-weight: 500;
 }
 
 /* --- SELECTION BUTTONS --- */
@@ -106,6 +117,7 @@ button:hover {
 .track-name {
     font-size: 2em;
     margin-bottom: 0.5rem;
+    font-weight: 700;
 }
 
 .album-cover {
@@ -151,6 +163,10 @@ a:link {
 a:hover {
     color: cadetblue;
     text-decoration: underline;
+}
+
+a:visited {
+    color: aqua;
 }
 
 /* --- DESKTOP/TABLET LAYOUT (Min-width 768px) --- */
@@ -200,6 +216,7 @@ a:hover {
         grid-column: 2;
         grid-row: 1;
         max-width: none;
+        margin-top: 0.5rem;
         padding: 2rem;
         background-color: #333;
         border-radius: 12px;

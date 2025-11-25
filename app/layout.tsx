@@ -1,12 +1,5 @@
 import type { Metadata } from "next";
-import { Victor_Mono } from "next/font/google";
 import "./globals.css";
-
-const victorMono = Victor_Mono({
-  variable: "--font-victor-mono",
-  weight: "200",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,7 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${victorMono.variable} antialiased`}>{children}</body>
+      <body>{children}</body>
     </html>
   );
 }
