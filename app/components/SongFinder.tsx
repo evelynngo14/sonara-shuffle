@@ -188,9 +188,9 @@ const SongFinder: React.FC = () => {
   };
 
   return (
-    <>
+    <div className="container">
       <h1 className="title">sonara shuffle</h1>
-      <div className="selection">
+      <div className="selection-options">
         <h2>Decade</h2>
         <ListDecades decades={Decades} onClick={handleDecadeSelect} />
 
@@ -202,52 +202,48 @@ const SongFinder: React.FC = () => {
         </button>
       </div>
 
-      <div>
+      <div className="main-content">
         {track && (
-          <div className="track-info">
-            <h1 className="track-name">{track.name}</h1>
+          <>
+            <div className="track-info">
+              <h1 className="track-name">{track.name}</h1>
 
-            <p>By {track.artists.join(", ")}</p>
-            <img
-              src={track.albumArt}
-              alt={`Album art for ${track.name}`}
-              className="album cover"
-            />
-            <p>Released {track.releaseDate}</p>
-
-            {artistBio ? (
-              <div className="mt-6 pt-4 border-t border-gray-200 text-left">
-                <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                  About {track.artists[0]}
-                </h4>
-                <p className="text-sm text-gray-700 leading-relaxed italic">
-                  {artistBio}
+              <p>By {track.artists.join(", ")}</p>
+              <img
+                src={track.albumArt}
+                alt={`Album art for ${track.name}`}
+                className="album-cover"
+              />
+              <p>Released {track.releaseDate}</p>
+            </div>
+            <div className="artist-bio">
+              {artistBio ? (
+                <>
+                  <h4 className="about-title">About {track.artists[0]}</h4>
+                  <p>{artistBio}</p>
+                  <a
+                    href={`https://en.wikipedia.org/wiki/${encodeURIComponent(track.artists[0])}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Read more on Wikipedia
+                  </a>
+                </>
+              ) : (
+                <p>
+                  Could not find a short biography for {track.artists[0]} on
+                  Wikipedia.
                 </p>
-                <a
-                  href={`https://en.wikipedia.org/wiki/${encodeURIComponent(track.artists[0])}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-indigo-500 hover:text-indigo-700 transition-colors duration-200 mt-1 inline-block"
-                >
-                  Read more on Wikipedia
-                </a>
-              </div>
-            ) : (
-              <p className="mt-4 text-gray-500 text-sm">
-                Could not find a short biography for {track.artists[0]} on
-                Wikipedia.
-              </p>
-            )}
-          </div>
+              )}
+            </div>
+          </>
         )}
-      </div>
 
-      <div>
         <p>{error}</p>
       </div>
 
       <div></div>
-    </>
+    </div>
   );
 };
 

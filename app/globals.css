@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* --- GLOBAL STYLES --- */
 html {
     font: clamp(1rem, 1rem + 0.5vw, 2rem) / 1.4 system-ui;
     -webkit-font-smoothing: antialiased;
@@ -12,92 +13,201 @@ html {
 }
 
 :root {
-    --primary-color: #d61782;
-    --background: #272727;
+    --primary-color: oklch(0.579 0.2284 354.46);
+    --secondary-color: oklch(0.1926 0.0271 354.46);
+    --background: #1e1e1e;
     --foreground: white;
-    padding: 40px;
     font-size: 16px;
-}
-
-@theme inline {
-    --color-background: var(--background);
-    --color-foreground: var(--foreground);
-    --font-mono: var(--font-victor-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --background: #0a0a0a;
-        --foreground: #ededed;
-    }
 }
 
 body {
     background: var(--background);
     color: var(--foreground);
-    min-block-size: 100svb;
-    min-inline-size: 300px;
+    min-block-size: 100svh; /* Use svh for full viewport height */
+    padding: 20px; /* Reduced padding on small screens */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* --- LAYOUT CONTAINER (MOBILE STACKED) --- */
+.container {
+    display: flex;
+    flex-direction: column; /* Stack all elements vertically by default */
+    width: 100%;
+    max-width: 1200px;
+    gap: 1.5rem;
 }
 
 .title {
-    font-size: 2em;
+    font-size: 2.5em;
+    text-align: center;
+    margin-bottom: 1rem;
 }
 
+/* --- TYPOGRAPHY AND HEADINGS --- */
 h1 {
     font-size: 1.5em;
 }
 
 h2 {
-    padding-top: 2em;
+    padding-top: 1.5em;
 }
 
+/* --- SELECTION BUTTONS --- */
 button {
     background-color: black;
-    border-radius: 4px;
-    gap: 10px;
-    padding: 7px;
+    border-radius: 8px; /* Slightly more rounded */
+    padding: 8px 12px;
     margin: 4px;
     text-wrap: nowrap;
-    min-width: 4rem;
+    min-width: 5rem;
+    transition:
+        background-color 0.2s,
+        box-shadow 0.2s;
 }
 
 button:hover {
-    background-color: black;
+    background-color: var(--secondary-color);
     cursor: pointer;
 }
 
 .selected.button {
     background-color: var(--primary-color);
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+    box-shadow:
+        0 0 10px var(--primary-color),
+        0 0 5px black;
 }
 
 .list {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
 }
 
+.selection-options {
+    /* Full width on mobile, no extra padding */
+    padding-left: 0;
+}
+
+/* --- TRACK INFO (SHARED STYLES) --- */
 .track-info {
     background-color: var(--primary-color);
-    display: grid;
-    width: 20rem;
-    justify-items: center;
-    justify-self: center;
-    align-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    border-radius: 12px;
     text-align: center;
-    padding-block: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
-.track-name {}
+.track-name {
+    font-size: 2em;
+    margin-bottom: 0.5rem;
+}
 
+.album-cover {
+    /* Fluid size for responsiveness */
+    max-width: 90%;
+    width: 300px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+    margin: 2rem 0;
+}
+
+/* --- ARTIST BIO --- */
+.artist-bio {
+    /* Removed fixed width, uses max-width of container */
+    max-width: 100%;
+    padding: 1rem 0;
+    text-align: justify;
+}
+
+.about-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+/* --- BUTTONS & LINKS --- */
 .fetch-song {
     margin-top: 20px;
     background-color: var(--primary-color);
+    width: 100%; /* Full width on mobile */
+    font-size: 1.1em;
+    padding: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-.album.cover {
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
-    width: 300px;
-    margin: 2rem;
+a:link {
+    color: aqua;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: cadetblue;
+    text-decoration: underline;
+}
+
+/* --- DESKTOP/TABLET LAYOUT (Min-width 768px) --- */
+@media only screen and (min-width: 768px) {
+    /* Main layout switches to two columns */
+    .container {
+        display: grid;
+        grid-template-columns: 1fr 2fr; /* Selection takes 1/3, Track Info/Bio takes 2/3 */
+        grid-template-rows: auto 1fr; /* Title row, then main content row */
+        gap: 30px;
+        padding: 40px;
+    }
+
+    .title {
+        grid-column: 1 / -1; /* Title spans all columns */
+        text-align: left;
+    }
+
+    .selection-options {
+        grid-column: 1;
+        grid-row: 2;
+        padding-left: 0;
+        /* Ensure the contents of the selection pane don't stretch excessively */
+        max-width: 300px;
+    }
+
+    .fetch-song {
+        width: auto; /* Buttons can size to content again */
+    }
+
+    /* Track Info and Artist Bio are now a sub-grid in the second column */
+    .main-content-area {
+        grid-column: 2;
+        grid-row: 2;
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Two columns for track info / artist bio */
+        grid-template-rows: auto 1fr;
+        gap: 20px;
+    }
+
+    .track-info {
+        grid-column: 1;
+        grid-row: 1 / 3; /* Track Info spans both rows */
+    }
+
+    .artist-bio {
+        grid-column: 2;
+        grid-row: 1;
+        max-width: none;
+        padding: 2rem;
+        background-color: #333;
+        border-radius: 12px;
+        align-self: flex-start;
+        height: min-content;
+    }
+
+    .about-title {
+        text-align: left;
+    }
 }

@@ -6,7 +6,7 @@ const victorMono = Victor_Mono({
   variable: "--font-victor-mono",
   weight: "200",
   subsets: ["latin"],
-})
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,11 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${victorMono.variable} antialiased`}
-      >
-        {children}
-      </body>
+      <body className={`${victorMono.variable} antialiased`}>{children}</body>
     </html>
   );
 }
