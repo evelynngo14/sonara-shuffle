@@ -1,8 +1,7 @@
 @import "tailwindcss";
 
 html {
-    font: clamp(1rem, 1rem + 0.5vw, 2rem) / 1.4 system-ui,
-        sans-serif;
+    font: clamp(1rem, 1rem + 0.5vw, 2rem) / 1.4 system-ui;
     -webkit-font-smoothing: antialiased;
 }
 
@@ -23,8 +22,7 @@ html {
 @theme inline {
     --color-background: var(--background);
     --color-foreground: var(--foreground);
-    --font-sans: var(--font-geist-sans);
-    --font-mono: var(--font-geist-mono);
+    --font-mono: var(--font-victor-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -37,21 +35,24 @@ html {
 body {
     background: var(--background);
     color: var(--foreground);
-    font-family: Arial, Helvetica, sans-serif;
     min-block-size: 100svb;
     min-inline-size: 300px;
 }
 
+.title {
+    font-size: 2em;
+}
+
 h1 {
-    font-size: 2.5em;
+    font-size: 1.5em;
 }
 
 h2 {
-    padding-top: 30px;
+    padding-top: 2em;
 }
 
 button {
-    background-color: var(--primary-color);
+    background-color: black;
     border-radius: 4px;
     gap: 10px;
     padding: 7px;
@@ -66,24 +67,26 @@ button:hover {
 }
 
 .selected.button {
-    background-color: black;
+    background-color: var(--primary-color);
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .list {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 10px;
 }
-
-.selection {}
 
 .track-info {
     background-color: var(--primary-color);
     display: grid;
+    width: 20rem;
     justify-items: center;
+    justify-self: center;
     align-content: center;
     text-align: center;
+    padding-block: 10px;
 }
 
 .track-name {}
@@ -91,4 +94,10 @@ button:hover {
 .fetch-song {
     margin-top: 20px;
     background-color: var(--primary-color);
+}
+
+.album.cover {
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+    width: 300px;
+    margin: 2rem;
 }

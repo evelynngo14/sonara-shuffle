@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import ListDecades, { Decades } from '../components/ListDecades';
-import ListGenres, { Genres } from '../components/ListGenres';
-import getAccessToken from '../lib/spotify';
+import React, { useState, useEffect } from "react";
+import ListDecades, { Decades } from "../components/ListDecades";
+import ListGenres, { Genres } from "../components/ListGenres";
+import fetchArtistBio from "../components/ArtistBio";
+import getAccessToken from "../lib/spotify";
 
+interface SpotifyArtist {
+  name: string;
+}
 
 export interface Track {
   id: string;
@@ -17,11 +21,14 @@ export interface Track {
 }
 
 const SongFinder: React.FC = () => {
-  const [genre, setGenre] = useState<string>('any');
-  const [selectedRange, setSelectedRange] = useState<[number, number]>(Decades['any']);
-  const [selectedDecadeLabel, setSelectedDecadeLabel] = useState<string>('any');
+  const [genre, setGenre] = useState<string>("any");
+  const [selectedRange, setSelectedRange] = useState<[number, number]>(
+    Decades["any"],
+  );
+  const [selectedDecadeLabel, setSelectedDecadeLabel] = useState<string>("any");
+  const [artistBio, setArtistBio] = useState<string | null>(null);
   const [track, setTrack] = useState<Track | null>(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState<boolean>(false);
   const [accessToken, setAccessToken] = useState<string | null>(null); // State for token
 
@@ -39,36 +46,37 @@ const SongFinder: React.FC = () => {
       return;
     }
 
+    // Reset
     setLoading(true);
-    setError('');
+    setError("");
+    setArtistBio(null);
 
     const [minYear, maxYear] = selectedRange;
     const queryParts: string[] = [];
 
     // Handle Genre: Only include if not 'any'
-    if (genre !== 'any') {
+    if (genre !== "any") {
       queryParts.push(`genre:${genre}`);
     }
 
     // Handle Decade: Only include if not 'any'
-    if (selectedDecadeLabel !== 'any') {
+    if (selectedDecadeLabel !== "any") {
       queryParts.push(`year:${minYear}-${maxYear}`);
     }
 
-    // Use a default search term if both genre and decade are 'any', 
-    let query = queryParts.join(' ');
-    if (query === '') {
+    // Use a default search term if both genre and decade are 'any',
+    let query = queryParts.join(" ");
+    if (query === "") {
       // Fallback to a broad search if no filters are applied
-      query = 'track:a'; // Searching for tracks with the letter 'a' is a common broad technique
+      query = "track:a"; // Searching for tracks with the letter 'a' is a common broad technique
     }
 
-
-    const markets = ['US', 'GB'];
-    let maxOffset = 950;
-    let limit = 50;
+    const markets = ["US", "GB"];
+    const maxOffset = 950;
+    const limit = 50;
     let foundTrack = null;
     let retries = 0;
-    let MAX_RETRIES = 5;
+    const MAX_RETRIES = 5;
     setTrack(null);
 
     try {
@@ -77,18 +85,20 @@ const SongFinder: React.FC = () => {
         retries++; // Increment retry count immediately
 
         // --- MARKET RESTRICTION LOGIC: Randomly select US or GB on each retry ---
-        const randomMarket = markets[Math.floor(Math.random() * markets.length)];
+        const randomMarket =
+          markets[Math.floor(Math.random() * markets.length)];
         const marketParam = `&market=${randomMarket}`;
 
         // --- RANDOMIZATION LOGIC: Generate a new random offset on each retry ---
         const offset = Math.floor(Math.random() * maxOffset);
 
         const response = await fetch(
-          `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=${limit}&offset=${offset}${marketParam}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          }
-        }
+          `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=${limit}&offset=${offset}${marketParam}`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          },
         );
 
         // Check for API errors (e.g., rate limiting, invalid token) outside of 404/no results
@@ -97,7 +107,10 @@ const SongFinder: React.FC = () => {
           const errorData = await response.json();
           console.error("Spotify API Error:", errorData);
           // Throw an error to break the loop and go to the catch block
-          throw new Error(errorData.error?.message || `Spotify API returned status ${response.status}`);
+          throw new Error(
+            errorData.error?.message ||
+              `Spotify API returned status ${response.status}`,
+          );
         }
 
         const data = await response.json();
@@ -109,9 +122,11 @@ const SongFinder: React.FC = () => {
           const randomIndex = Math.floor(Math.random() * trackItems.length);
           foundTrack = trackItems[randomIndex];
         } else {
-          console.log(`Retry ${retries}/${MAX_RETRIES}: No tracks found in this batch. Retrying...`);
+          console.log(
+            `Retry ${retries}/${MAX_RETRIES}: No tracks found in this batch. Retrying...`,
+          );
           // Wait briefly before retrying to avoid excessive requests
-          await new Promise(resolve => setTimeout(resolve, 300));
+          await new Promise((resolve) => setTimeout(resolve, 300));
         }
       }
 
@@ -122,30 +137,44 @@ const SongFinder: React.FC = () => {
           return;
         }
 
+        // Temporarily change loading indicator state for the user
+        setError("Fetching Artist Bio...");
+
+        // Find artist wikipedia bio
+        const artists =
+          foundTrack.artists?.map((artist: SpotifyArtist) => artist.name) || [];
+        const bio: string | null = await fetchArtistBio(artists[0]);
+
+        setError(""); // Clear temporary message
+
+        setArtistBio(bio);
         setTrack({
           id: foundTrack.id,
           name: foundTrack.name,
           // Safely map artists, ensuring artist names are extracted and defaults to []
-          artists: foundTrack.artists?.map((artist: any) => artist.name) || [],
+          artists: artists,
           // Safely access the album art URL
-          albumArt: foundTrack.album.images?.[0]?.url || '',
+          albumArt: foundTrack.album.images?.[0]?.url || "",
           // Release date is usually on the album object
           releaseDate: foundTrack.album.release_date,
           preview_url: foundTrack.preview_url,
           external_url: foundTrack.external_urls,
         });
       } else {
-        setError(`Could not find a song after ${MAX_RETRIES} attempts for ${genre === 'any' ? 'any genre' : genre} in the selected decade in the selected market.`);
-        console.log(error)
+        setError(
+          `Could not find a song after ${MAX_RETRIES} attempts for ${genre === "any" ? "any genre" : genre} in the selected decade in the selected market.`,
+        );
+        console.log(error);
       }
     } catch (error: any) {
       console.error("Fetch failed:", error);
-      setError(`Failed to fetch song: ${error.message || "Network or parsing error."}`);
+      setError(
+        `Failed to fetch song: ${error.message || "Network or parsing error."}`,
+      );
     } finally {
       setLoading(false);
     }
   };
-
 
   const handleDecadeSelect = (label: string, range: [number, number]) => {
     console.log(`Parent received: ${label}`, range);
@@ -156,11 +185,11 @@ const SongFinder: React.FC = () => {
   const handleGenreSelect = (label: string) => {
     console.log(`Parent received: ${label}`);
     setGenre(label);
-  }
-
+  };
 
   return (
     <>
+      <h1 className="title">sonara shuffle</h1>
       <div className="selection">
         <h2>Decade</h2>
         <ListDecades decades={Decades} onClick={handleDecadeSelect} />
@@ -168,13 +197,9 @@ const SongFinder: React.FC = () => {
         <h2>Genre</h2>
         <ListGenres genres={Genres} onClick={handleGenreSelect} />
 
-        <button className="fetch-song"
-          onClick={fetchSong}
-          disabled={loading}
-        >
-          {loading ? 'Searching...' : 'Find Song'}
+        <button className="fetch-song" onClick={fetchSong} disabled={loading}>
+          {loading ? "Searching..." : "Find Song"}
         </button>
-
       </div>
 
       <div>
@@ -182,24 +207,48 @@ const SongFinder: React.FC = () => {
           <div className="track-info">
             <h1 className="track-name">{track.name}</h1>
 
-            <p>By {track.artists.join(', ')}</p>
-
-            <p>{track.releaseDate}</p>
-
+            <p>By {track.artists.join(", ")}</p>
             <img
               src={track.albumArt}
               alt={`Album art for ${track.name}`}
-              className="w-[200px]"
+              className="album cover"
             />
-          </div>)}
+            <p>Released {track.releaseDate}</p>
+
+            {artistBio ? (
+              <div className="mt-6 pt-4 border-t border-gray-200 text-left">
+                <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                  About {track.artists[0]}
+                </h4>
+                <p className="text-sm text-gray-700 leading-relaxed italic">
+                  {artistBio}
+                </p>
+                <a
+                  href={`https://en.wikipedia.org/wiki/${encodeURIComponent(track.artists[0])}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-indigo-500 hover:text-indigo-700 transition-colors duration-200 mt-1 inline-block"
+                >
+                  Read more on Wikipedia
+                </a>
+              </div>
+            ) : (
+              <p className="mt-4 text-gray-500 text-sm">
+                Could not find a short biography for {track.artists[0]} on
+                Wikipedia.
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       <div>
-        <p> {error} </p>
+        <p>{error}</p>
       </div>
-    </>
-  )
-}
 
+      <div></div>
+    </>
+  );
+};
 
 export default SongFinder;
