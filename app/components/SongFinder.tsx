@@ -241,8 +241,6 @@ const SongFinder: React.FC = () => {
 
         <p className="error">{error}</p>
       </div>
-
-      <div></div>
     </div>
   );
 };

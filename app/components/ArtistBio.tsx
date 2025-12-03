@@ -77,7 +77,7 @@ const fetchArtistBio = (artistName: string): Promise<string | null> =>
             return resolves(null);
           }
 
-          // 3. Clean up and truncate (now working on the full extract)
+          // Clean up and truncate (now working on the full extract)
           fullBio = fullBio.replace(/<[^>]*>?/gm, "").trim();
 
           const maxLength = 500;
